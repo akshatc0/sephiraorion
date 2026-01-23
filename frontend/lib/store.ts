@@ -6,7 +6,7 @@ interface ChatStore {
   isLoading: boolean;
   selectedCountries: string[];
   addMessage: (message: Message) => void;
-  updateLastMessage: (content: string, data?: any) => void;
+  updateLastMessage: (updates: Partial<Omit<Message, 'id' | 'sentByMe' | 'timestamp'>>) => void;
   setLoading: (loading: boolean) => void;
   setSelectedCountries: (countries: string[]) => void;
   clearMessages: () => void;
@@ -22,11 +22,11 @@ export const useStore = create<ChatStore>((set) => ({
       messages: [...state.messages, message],
     })),
   
-  updateLastMessage: (content, data) =>
+  updateLastMessage: (updates) =>
     set((state) => ({
       messages: state.messages.map((msg, idx) =>
         idx === state.messages.length - 1
-          ? { ...msg, message: content, data }
+          ? { ...msg, ...updates }
           : msg
       ),
     })),
