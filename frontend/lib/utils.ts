@@ -9,29 +9,29 @@ export function generateId(): string {
   return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 }
 
-export function detectIntent(query: string): { intent: string; entities: any } {
+export function detectIntent(query: string): string {
   const lowerQuery = query.toLowerCase();
   
   // Forecast detection
   if (lowerQuery.includes('forecast') || lowerQuery.includes('predict')) {
-    return { intent: 'forecast', entities: {} };
+    return 'forecast';
   }
   
   // Trends detection
   if (lowerQuery.includes('trend') || lowerQuery.includes('trending')) {
-    return { intent: 'trends', entities: {} };
+    return 'trends';
   }
   
   // Correlation detection
   if (lowerQuery.includes('correlate') || lowerQuery.includes('correlation') || lowerQuery.includes('relate')) {
-    return { intent: 'correlation', entities: {} };
+    return 'correlation';
   }
   
   // Anomaly detection
   if (lowerQuery.includes('anomaly') || lowerQuery.includes('anomalies') || lowerQuery.includes('unusual')) {
-    return { intent: 'anomalies', entities: {} };
+    return 'anomalies';
   }
   
   // Default to text query
-  return { intent: 'text', entities: {} };
+  return 'text';
 }
