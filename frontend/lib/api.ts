@@ -22,25 +22,29 @@ export interface ChatResponse {
 
 export interface ForecastRequest {
   country: string;
-  periods?: number;
+  days?: number;
+  confidence_level?: number;
 }
 
 export interface TrendRequest {
-  country?: string;
+  countries: string[];
   start_date?: string;
   end_date?: string;
+  window?: number;
 }
 
 export interface CorrelationRequest {
-  country1: string;
-  country2: string;
+  countries?: string[];
   start_date?: string;
   end_date?: string;
+  method?: string;
 }
 
 export interface AnomalyRequest {
-  country?: string;
-  threshold?: number;
+  countries?: string[];
+  start_date?: string;
+  end_date?: string;
+  sensitivity?: number;
 }
 
 export const chatAPI = {
