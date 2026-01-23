@@ -75,3 +75,6 @@ debug.log
 
 # Plans
 .cursor/plans/
+
+# Deployment temp files
+railway-env.txt
