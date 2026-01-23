@@ -43,7 +43,7 @@ export interface AnomalyRequest {
   threshold?: number;
 }
 
-export const chatApi = {
+export const chatAPI = {
   sendMessage: async (data: ChatRequest): Promise<ChatResponse> => {
     const response = await api.post('/api/chat', data);
     return response.data;

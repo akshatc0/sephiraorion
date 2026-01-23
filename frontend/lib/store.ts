@@ -1,48 +1,39 @@
 import { create } from 'zustand';
-
-export interface Message {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-  isStreaming?: boolean;
-}
+import type { Message } from './types';
 
 interface ChatStore {
   messages: Message[];
   isLoading: boolean;
-  addMessage: (message: Omit<Message, 'id' | 'timestamp'>) => void;
-  updateLastMessage: (content: string) => void;
+  selectedCountries: string[];
+  addMessage: (message: Message) => void;
+  updateLastMessage: (content: string, data?: any) => void;
   setLoading: (loading: boolean) => void;
+  setSelectedCountries: (countries: string[]) => void;
   clearMessages: () => void;
 }
 
-export const useChatStore = create<ChatStore>((set) => ({
+export const useStore = create<ChatStore>((set) => ({
   messages: [],
   isLoading: false,
+  selectedCountries: ['United States'],
   
   addMessage: (message) =>
     set((state) => ({
-      messages: [
-        ...state.messages,
-        {
-          ...message,
-          id: Math.random().toString(36).substring(7),
-          timestamp: new Date(),
-        },
-      ],
+      messages: [...state.messages, message],
     })),
   
-  updateLastMessage: (content) =>
+  updateLastMessage: (content, data) =>
     set((state) => ({
       messages: state.messages.map((msg, idx) =>
         idx === state.messages.length - 1
-          ? { ...msg, content, isStreaming: false }
+          ? { ...msg, message: content, data }
           : msg
       ),
     })),
   
   setLoading: (loading) => set({ isLoading: loading }),
+  
+  setSelectedCountries: (countries) => set({ selectedCountries: countries }),
   
   clearMessages: () => set({ messages: [] }),
 }));
