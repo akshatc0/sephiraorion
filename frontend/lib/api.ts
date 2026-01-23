@@ -49,22 +49,22 @@ export const chatAPI = {
     return response.data;
   },
 
-  forecast: async (data: ForecastRequest) => {
+  getForecast: async (data: ForecastRequest) => {
     const response = await api.post('/api/predict/forecast', data);
     return response.data;
   },
 
-  trends: async (data: TrendRequest) => {
+  getTrends: async (data: TrendRequest) => {
     const response = await api.post('/api/predict/trends', data);
     return response.data;
   },
 
-  correlation: async (data: CorrelationRequest) => {
+  getCorrelations: async (data: CorrelationRequest) => {
     const response = await api.post('/api/predict/correlation', data);
     return response.data;
   },
 
-  anomalies: async (data: AnomalyRequest) => {
+  getAnomalies: async (data: AnomalyRequest) => {
     const response = await api.post('/api/predict/anomalies', data);
     return response.data;
   },
