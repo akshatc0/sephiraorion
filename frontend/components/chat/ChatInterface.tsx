@@ -95,7 +95,7 @@ export function ChatInterface() {
         try {
           const trendsResponse = await chatAPI.getTrends({
             countries: selectedCountries.slice(0, 5),
-            days: 90,
+            window: 90,
           });
           visualizationData = trendsResponse;
           visualizationType = 'trends';
@@ -108,7 +108,6 @@ export function ChatInterface() {
         try {
           const correlationResponse = await chatAPI.getCorrelations({
             countries: selectedCountries.slice(0, 5),
-            days: 90,
           });
           visualizationData = correlationResponse;
           visualizationType = 'correlation';
@@ -121,7 +120,7 @@ export function ChatInterface() {
         try {
           const anomalyResponse = await chatAPI.getAnomalies({
             countries: selectedCountries,
-            threshold: 2.0,
+            sensitivity: 0.05,
           });
           visualizationData = anomalyResponse;
           visualizationType = 'anomalies';
