@@ -40,15 +40,15 @@ export function ChatInput({ onSubmit, disabled = false }: ChatInputProps) {
 
   return (
     <div className="relative w-full max-w-lg">
-      <div className="relative rounded-3xl bg-white p-1 shadow-soft">
-        <div className="relative flex items-center justify-between rounded-3xl border-gray-100 bg-white p-1.5 z-20">
+      <div className="relative rounded-3xl bg-transparent border border-white/20 p-1 shadow-soft">
+        <div className="relative flex items-center justify-between rounded-3xl bg-transparent p-1.5 z-20">
           {/* Main input field */}
           <div className="flex flex-1 items-center gap-3 pr-3">
             <button 
-              className="flex size-10 items-center justify-center overflow-hidden rounded-xl bg-secondary transition-colors hover:bg-gray-200"
+              className="flex size-10 items-center justify-center overflow-hidden rounded-button bg-transparent border border-white/20 transition-colors hover:bg-white/10"
               disabled={disabled}
             >
-              <Plus className="size-5 text-gray-400" />
+              <Plus className="size-5 text-text-primary" />
             </button>
             <input
               type="text"
@@ -65,13 +65,13 @@ export function ChatInput({ onSubmit, disabled = false }: ChatInputProps) {
                 setInputValue(e.target.value);
               }}
               placeholder="Send Message"
-              className="flex-1 bg-transparent outline-none placeholder:text-text-secondary disabled:opacity-50"
+              className="flex-1 bg-transparent outline-none placeholder:text-text-secondary text-text-primary disabled:opacity-50"
             />
           </div>
           <button
             onClick={handleSubmit}
             disabled={disabled || !inputValue.trim()}
-            className="flex size-10 items-center justify-center overflow-hidden rounded-xl bg-secondary transition-colors hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex size-10 items-center justify-center overflow-hidden rounded-button bg-white text-black transition-colors hover:bg-white/90 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <AnimatePresence>
               {arrow && (

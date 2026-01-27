@@ -151,7 +151,7 @@ export function ChatInterface() {
   };
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden bg-background font-medium text-black">
+    <div className="relative h-screen w-screen overflow-hidden bg-background text-text-primary">
       {/* Animated gradient background */}
       <AnimatedBackground isSubmitting={isSubmitting} />
 
@@ -159,7 +159,7 @@ export function ChatInterface() {
       <div className="relative z-10 h-full w-full flex flex-col">
         {/* Header - Fixed at top */}
         <div className="text-center py-6 px-4 shrink-0">
-          <h1 className="text-2xl md:text-3xl font-bold mb-1">Sephira Orion</h1>
+          <h1 className="text-2xl md:text-3xl font-bold mb-1 text-text-primary">Sephira Orion</h1>
           <p className="text-sm md:text-base text-text-secondary">
             AI-Powered Global Sentiment Intelligence
           </p>
@@ -198,7 +198,7 @@ export function ChatInterface() {
         </div>
 
         {/* Input area - Fixed at bottom */}
-        <div className="flex justify-center px-4 py-6 shrink-0 border-t border-gray-200/50">
+        <div className="flex justify-center px-4 py-6 shrink-0 border-t border-white/10">
           <ChatInput 
             onSubmit={handleSendMessage} 
             disabled={isLoading}
@@ -213,7 +213,7 @@ function SuggestionChip({ text, onClick }: { text: string; onClick: () => void }
   return (
     <button
       onClick={onClick}
-      className="px-4 py-2 bg-white text-sm rounded-full shadow-soft hover:shadow-medium transition-all hover:scale-105"
+      className="px-4 py-2 bg-white text-black text-sm rounded-button shadow-soft hover:shadow-medium transition-all hover:scale-105"
     >
       {text}
     </button>

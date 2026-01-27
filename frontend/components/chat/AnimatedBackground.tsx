@@ -11,11 +11,11 @@ const Grad = ({ className }: { className?: string }) => (
   <div
     className={cn("flex h-full flex-col items-stretch -space-y-3", className)}
   >
-    <div className="w-full flex-1 bg-accent-pink blur-xl" />
-    <div className="w-full flex-1 bg-accent-orange blur-xl" />
-    <div className="w-full flex-1 bg-accent-yellow blur-xl" />
-    <div className="w-full flex-1 bg-accent-light-blue blur-xl" />
-    <div className="w-full flex-1 bg-accent-blue blur-xl" />
+    <div className="w-full flex-1 bg-accent-blue/20 blur-xl" />
+    <div className="w-full flex-1 bg-accent-sky/20 blur-xl" />
+    <div className="w-full flex-1 bg-accent-blue/30 blur-xl" />
+    <div className="w-full flex-1 bg-card-gradient-top/20 blur-xl" />
+    <div className="w-full flex-1 bg-accent-sky/20 blur-xl" />
   </div>
 );
 

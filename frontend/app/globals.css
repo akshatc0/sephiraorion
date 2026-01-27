@@ -4,7 +4,8 @@
 
 @layer base {
   body {
-    @apply bg-background text-black font-medium;
+    @apply bg-background text-text-primary font-normal;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
   
   html, body {
@@ -14,15 +15,19 @@
 
 @layer utilities {
   .shadow-soft {
-    box-shadow: 0 10px 20px -6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 20px -6px rgba(0, 0, 0, 0.3);
   }
   
   .shadow-medium {
-    box-shadow: 0 10px 20px -6px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 20px -6px rgba(0, 0, 0, 0.5);
   }
   
   .will-change-transform {
     will-change: transform;
+  }
+  
+  .card-gradient {
+    background: linear-gradient(to bottom, #121834, #090D20);
   }
 }
 
@@ -36,10 +41,10 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.3);
 }

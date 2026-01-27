@@ -43,16 +43,16 @@ export function MessageBubble({ message }: MessageBubbleProps) {
       className={cn([
         "max-w-[80%] md:max-w-[600px]",
         "break-words px-[14px] py-[10px]",
-        "overflow-hidden text-sm",
+        "overflow-hidden text-sm rounded-card",
         message.sentByMe
-          ? "self-end rounded-[14px_14px_6px] bg-white text-black shadow-medium border border-gray-200"
-          : "self-start rounded-[14px_14px_14px_6px] bg-accent-sky text-white shadow-medium",
+          ? "self-end bg-white text-black shadow-medium"
+          : "self-start card-gradient text-white shadow-medium",
       ])}
     >
       {message.type === 'loading' ? (
         <LoadingDots />
       ) : message.type === 'error' ? (
-        <div className="text-red-500">
+        <div className="text-red-400">
           <p className="font-semibold">Error</p>
           <p className="will-change-transform">{message.message}</p>
         </div>
@@ -62,7 +62,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           {renderVisualization()}
           {message.data?.sources && message.data.sources.length > 0 && !message.sentByMe && (
             <div className="mt-2 pt-2 border-t border-white/20">
-              <p className="text-xs opacity-70">
+              <p className="text-xs text-text-secondary">
                 Sources: {message.data.sources.slice(0, 3).map((s: any) => s.country).join(", ")}
                 {message.data.sources.length > 3 && ` +${message.data.sources.length - 3} more`}
               </p>

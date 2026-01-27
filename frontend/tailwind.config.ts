@@ -9,10 +9,13 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#F5F6F6",
+        background: "#0A0D1C",
+        "background-secondary": "#0F152F",
         card: "#FFFFFF",
-        secondary: "#f5f4f3",
-        "text-secondary": "#6b7280",
+        "card-gradient-top": "#121834",
+        "card-gradient-bottom": "#090D20",
+        "text-primary": "#FFFFFF",
+        "text-secondary": "rgba(255, 255, 255, 0.62)",
         "accent-pink": "#FC2BA3",
         "accent-orange": "#FC6D35",
         "accent-yellow": "#F9C83D",
@@ -21,11 +24,15 @@ const config: Config = {
         "accent-sky": "#0ea5e9",
       },
       boxShadow: {
-        soft: "0 10px 20px -6px rgba(0, 0, 0, 0.1)",
-        medium: "0 10px 20px -6px rgba(0, 0, 0, 0.2)",
+        soft: "0 10px 20px -6px rgba(0, 0, 0, 0.3)",
+        medium: "0 10px 20px -6px rgba(0, 0, 0, 0.5)",
       },
       borderRadius: {
-        chat: "14px",
+        card: "20px",
+        button: "14px",
+      },
+      fontFamily: {
+        sans: ['"Helvetica Neue"', 'Helvetica', 'Arial', 'sans-serif'],
       },
     },
   },
