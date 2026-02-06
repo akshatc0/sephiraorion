@@ -116,7 +116,7 @@ if not _backend_loaded:
             messages.append({"role": "user", "content": request.query})
 
             response = client.chat.completions.create(
-                model="gpt-4o",
+                model="gpt-5o",
                 messages=messages,
                 temperature=0.7,
                 max_tokens=4000,
@@ -144,7 +144,7 @@ if not _backend_loaded:
         country = request.get("country", "Unknown")
         try:
             response = client.chat.completions.create(
-                model="gpt-4o",
+                model="gpt-5o",
                 messages=[
                     {"role": "system", "content": SEPHIRA_SYSTEM_PROMPT},
                     {"role": "user", "content": f"Provide a sentiment forecast analysis for {country} for the next 30 days. Discuss expected trends and confidence levels."},
@@ -168,7 +168,7 @@ if not _backend_loaded:
         countries = request.get("countries", [])
         try:
             response = client.chat.completions.create(
-                model="gpt-4o",
+                model="gpt-5o",
                 messages=[
                     {"role": "system", "content": SEPHIRA_SYSTEM_PROMPT},
                     {"role": "user", "content": f"Analyze recent sentiment trends for: {', '.join(countries) if countries else 'major global economies'}."},
@@ -220,7 +220,7 @@ async def get_summary(request: CountryRequest):
     """Analyze current economic and geopolitical trends for a country."""
     try:
         response = client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-5o",
             messages=[
                 {"role": "system", "content": DASHBOARD_SYSTEM_PROMPT},
                 {
@@ -263,7 +263,7 @@ async def dashboard_chat(request: DashboardChatRequest):
     """Answer a financial question in the context of a country (dashboard)."""
     try:
         response = client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-5o",
             messages=[
                 {"role": "system", "content": DASHBOARD_SYSTEM_PROMPT},
                 {
