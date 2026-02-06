@@ -160,7 +160,7 @@ if not _backend_loaded:
                 model="gpt-5.2",
                 messages=messages,
                 temperature=0.7,
-                max_tokens=4000,
+                max_completion_tokens=4000,
             )
 
             return {
@@ -191,7 +191,7 @@ if not _backend_loaded:
                     {"role": "user", "content": f"Provide a sentiment forecast analysis for {country} for the next 30 days. Discuss expected trends and confidence levels."},
                 ],
                 temperature=0.7,
-                max_tokens=2000,
+                max_completion_tokens=2000,
             )
             return {
                 "country": country,
@@ -215,7 +215,7 @@ if not _backend_loaded:
                     {"role": "user", "content": f"Analyze recent sentiment trends for: {', '.join(countries) if countries else 'major global economies'}."},
                 ],
                 temperature=0.7,
-                max_tokens=2000,
+                max_completion_tokens=2000,
             )
             return {"trends": {}, "analysis": response.choices[0].message.content}
         except Exception as e:
@@ -278,7 +278,7 @@ async def get_summary(request: CountryRequest):
             ],
             response_format={"type": "json_object"},
             temperature=0.7,
-            max_tokens=2000,
+            max_completion_tokens=2000,
         )
 
         content = response.choices[0].message.content
@@ -313,7 +313,7 @@ async def dashboard_chat(request: DashboardChatRequest):
                 },
             ],
             temperature=0.7,
-            max_tokens=2000,
+            max_completion_tokens=2000,
         )
 
         answer = response.choices[0].message.content
