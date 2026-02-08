@@ -96,7 +96,7 @@ First, answer the user's question immediately in plain language (1-2 sentences).
 
 Then, explain the CAUSAL CHAIN — HOW and WHY (2-3 paragraphs). This is the core of every response. For each event you mention:
 - Name the event specifically: who said or did what, on what date. Quote leaders, central bankers, or officials where possible (e.g. "President Xi declared 'reunification is unstoppable' in his January 1 address", "The Fed held rates at 5.25% on December 13", "Erdogan posted on X that Turkey would 'never bow to economic pressure'").
-- Explain the TRANSMISSION MECHANISM: how does this event change volatility, capital flows, or risk premiums in the region? What is the chain from political event → economic channel → sentiment shift? For example: a tariff increase → higher import costs → margin compression for manufacturers → weaker earnings guidance → institutional sell-off → sentiment deterioration.
+- Explain the TRANSMISSION MECHANISM: how does this event change volatility, capital flows, sentiment or risk premiums in the region? What is the chain from political event → economic channel → sentiment shift? For example: a tariff increase → higher import costs → margin compression for manufacturers → weaker earnings guidance → institutional sell-off → sentiment deterioration.
 - Explain WHO is affected and HOW: how does this improve or disadvantage an investor with exposure to the region? What positions gain, what positions lose?
 - Use YouTube/social trending data when provided: if escapism content is surging or crisis keywords dominate trending, explain what this reveals about population psychology and how it maps to consumer confidence or risk appetite.
 
@@ -231,7 +231,7 @@ if not _backend_loaded:
             response = client.chat.completions.create(
                 model=MODEL,
                 messages=messages,
-                temperature=0.3,
+    
                 max_completion_tokens=1000,
             )
 
@@ -261,7 +261,7 @@ if not _backend_loaded:
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": f"Provide a sentiment forecast for {country} for the next 30 days."},
                 ],
-                temperature=0.3,
+    
                 max_completion_tokens=1000,
             )
             return {
@@ -284,7 +284,7 @@ if not _backend_loaded:
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": f"Analyze recent sentiment trends for: {', '.join(countries) if countries else 'major global economies'}."},
                 ],
-                temperature=0.3,
+    
                 max_completion_tokens=1000,
             )
             return {"trends": {}, "analysis": response.choices[0].message.content}
@@ -324,13 +324,12 @@ class DashboardChatRequest(BaseModel):
 # Streaming helpers
 # ---------------------------------------------------------------------------
 
-def _stream_openai(messages, temperature=0.3, max_tokens=1000):
+def _stream_openai(messages, max_tokens=1000):
     """Generator that yields SSE-formatted chunks from OpenAI streaming."""
     try:
         stream = client.chat.completions.create(
             model=MODEL,
             messages=messages,
-            temperature=temperature,
             max_completion_tokens=max_tokens,
             stream=True,
         )
@@ -399,7 +398,7 @@ async def get_summary(request: CountryRequest):
                 {"role": "user", "content": prompt},
             ],
             response_format={"type": "json_object"},
-            temperature=0.3,
+
             max_completion_tokens=1000,
         )
 
@@ -463,7 +462,7 @@ async def dashboard_chat(request: DashboardChatRequest):
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": prompt},
             ],
-            temperature=0.3,
+
             max_completion_tokens=1000,
         )
 
@@ -497,7 +496,7 @@ async def dashboard_chat_stream(request: DashboardChatRequest):
     ]
 
     return StreamingResponse(
-        _stream_openai(messages, temperature=0.3, max_tokens=1000),
+        _stream_openai(messages, max_tokens=1000),
         media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache",
@@ -536,7 +535,7 @@ async def get_summary_stream(request: CountryRequest):
     ]
 
     return StreamingResponse(
-        _stream_openai(messages, temperature=0.3, max_tokens=1000),
+        _stream_openai(messages, max_tokens=1000),
         media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache",
