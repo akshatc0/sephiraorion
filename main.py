@@ -20,8 +20,8 @@ load_dotenv()
 # Initialize OpenAI client
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# Model configuration — gpt-5-mini for speed
-MODEL = "gpt-5-mini"
+# Model configuration
+MODEL = "gpt-5.2"
 
 
 # ---------------------------------------------------------------------------
@@ -231,8 +231,8 @@ if not _backend_loaded:
             response = client.chat.completions.create(
                 model=MODEL,
                 messages=messages,
-    
-                max_completion_tokens=1000,
+                temperature=0.3,
+                max_completion_tokens=1500,
             )
 
             return {
@@ -261,8 +261,8 @@ if not _backend_loaded:
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": f"Provide a sentiment forecast for {country} for the next 30 days."},
                 ],
-    
-                max_completion_tokens=1000,
+                temperature=0.3,
+                max_completion_tokens=1500,
             )
             return {
                 "country": country,
@@ -284,8 +284,8 @@ if not _backend_loaded:
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": f"Analyze recent sentiment trends for: {', '.join(countries) if countries else 'major global economies'}."},
                 ],
-    
-                max_completion_tokens=1000,
+                temperature=0.3,
+                max_completion_tokens=1500,
             )
             return {"trends": {}, "analysis": response.choices[0].message.content}
         except Exception as e:
@@ -324,12 +324,13 @@ class DashboardChatRequest(BaseModel):
 # Streaming helpers
 # ---------------------------------------------------------------------------
 
-def _stream_openai(messages, max_tokens=1000):
+def _stream_openai(messages, max_tokens=1500):
     """Generator that yields SSE-formatted chunks from OpenAI streaming."""
     try:
         stream = client.chat.completions.create(
             model=MODEL,
             messages=messages,
+            temperature=0.3,
             max_completion_tokens=max_tokens,
             stream=True,
         )
@@ -426,7 +427,9 @@ async def get_summary(request: CountryRequest):
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": prompt},
             ],
-            max_completion_tokens=1000,
+            response_format={"type": "json_object"},
+            temperature=0.3,
+            max_completion_tokens=1500,
         )
 
         content = response.choices[0].message.content or ""
@@ -492,8 +495,8 @@ async def dashboard_chat(request: DashboardChatRequest):
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": prompt},
             ],
-
-            max_completion_tokens=1000,
+            temperature=0.3,
+            max_completion_tokens=1500,
         )
 
         return {"answer": response.choices[0].message.content}
