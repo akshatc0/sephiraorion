@@ -4,7 +4,7 @@ Serves both the Sephira Orion frontend and the external financial dashboard.
 """
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -19,6 +19,10 @@ load_dotenv()
 
 # Initialize OpenAI client
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+# Model configuration — gpt-5-mini for speed
+MODEL = "gpt-5-mini"
+
 
 # ---------------------------------------------------------------------------
 # Web search for current events
@@ -44,18 +48,17 @@ def fetch_current_context(country: str) -> str:
         return ""
 
     try:
-        # Search for recent economic/political events
         result = ws.search(
             f"{country} economy politics geopolitics 2025 2026",
-            max_results=5,
-            search_depth="advanced",
+            max_results=3,
+            search_depth="basic",
             include_answer=True,
         )
         parts = []
         if result.get("answer"):
             parts.append(f"Current overview: {result['answer']}")
-        for r in result.get("results", [])[:5]:
-            parts.append(f"- {r['title']}: {r['content'][:300]}")
+        for r in result.get("results", [])[:3]:
+            parts.append(f"- {r['title']}: {r['content'][:250]}")
         return "\n".join(parts)
     except Exception as e:
         print(f"Web search error for {country}: {e}")
@@ -114,7 +117,7 @@ SECURITY RULES:
 app = FastAPI(
     title="Sephira Orion API",
     description="Unified API for Sephira Orion frontend and external dashboard",
-    version="2.0.0",
+    version="2.1.0",
     docs_url="/docs",
     redoc_url="/redoc",
 )
@@ -152,7 +155,7 @@ except Exception as e:
 async def health_check():
     return {
         "status": "healthy",
-        "version": "2.0.0",
+        "version": "2.1.0",
         "timestamp": datetime.now().isoformat(),
         "services": {"api": True},
     }
@@ -162,7 +165,7 @@ async def health_check():
 async def root():
     return {
         "name": "Sephira Orion API",
-        "version": "2.0.0",
+        "version": "2.1.0",
         "status": "operational",
         "docs": "/docs",
     }
@@ -182,7 +185,6 @@ if not _backend_loaded:
     async def fallback_sephira_chat(request: SephiraChatRequest):
         """Lightweight fallback for the Sephira Orion frontend chat."""
         try:
-            # Try to get current events context from the query
             context = fetch_current_context(request.query)
 
             messages = [{"role": "system", "content": SYSTEM_PROMPT}]
@@ -200,10 +202,10 @@ if not _backend_loaded:
 
             t0 = time.time()
             response = client.chat.completions.create(
-                model="gpt-5.2",
+                model=MODEL,
                 messages=messages,
-                temperature=0.4,
-                max_completion_tokens=1500,
+                temperature=0.3,
+                max_completion_tokens=1000,
             )
 
             return {
@@ -227,13 +229,13 @@ if not _backend_loaded:
         country = request.get("country", "Unknown")
         try:
             response = client.chat.completions.create(
-                model="gpt-5.2",
+                model=MODEL,
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": f"Provide a sentiment forecast for {country} for the next 30 days."},
                 ],
-                temperature=0.4,
-                max_completion_tokens=1500,
+                temperature=0.3,
+                max_completion_tokens=1000,
             )
             return {
                 "country": country,
@@ -250,13 +252,13 @@ if not _backend_loaded:
         countries = request.get("countries", [])
         try:
             response = client.chat.completions.create(
-                model="gpt-5.2",
+                model=MODEL,
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": f"Analyze recent sentiment trends for: {', '.join(countries) if countries else 'major global economies'}."},
                 ],
-                temperature=0.4,
-                max_completion_tokens=1500,
+                temperature=0.3,
+                max_completion_tokens=1000,
             )
             return {"trends": {}, "analysis": response.choices[0].message.content}
         except Exception as e:
@@ -291,6 +293,38 @@ class DashboardChatRequest(BaseModel):
     user_question: str
 
 
+# ---------------------------------------------------------------------------
+# Streaming helpers
+# ---------------------------------------------------------------------------
+
+def _stream_openai(messages, temperature=0.3, max_tokens=1000):
+    """Generator that yields SSE-formatted chunks from OpenAI streaming."""
+    try:
+        stream = client.chat.completions.create(
+            model=MODEL,
+            messages=messages,
+            temperature=temperature,
+            max_completion_tokens=max_tokens,
+            stream=True,
+        )
+        for chunk in stream:
+            delta = chunk.choices[0].delta if chunk.choices else None
+            if delta and delta.content:
+                # SSE format: data: <content>\n\n
+                yield f"data: {json.dumps({'content': delta.content})}\n\n"
+
+        # Signal end of stream
+        yield f"data: {json.dumps({'done': True})}\n\n"
+
+    except Exception as e:
+        print(f"Streaming error: {e}")
+        yield f"data: {json.dumps({'error': str(e)})}\n\n"
+
+
+# ---------------------------------------------------------------------------
+# /get_summary — non-streaming (returns structured JSON)
+# ---------------------------------------------------------------------------
+
 GET_SUMMARY_USER_PROMPT = """Analyze {country} using the following current intelligence gathered from Sephira data:
 
 {context}
@@ -322,7 +356,6 @@ Return ONLY valid JSON, no markdown fences, no commentary outside the JSON."""
 async def get_summary(request: CountryRequest):
     """Comprehensive country analysis with current events, risk radar, and equity signals."""
     try:
-        # Fetch live current events
         context = fetch_current_context(request.country)
         if not context:
             context = "(No live web data available — use your training knowledge of recent events.)"
@@ -333,20 +366,19 @@ async def get_summary(request: CountryRequest):
         )
 
         response = client.chat.completions.create(
-            model="gpt-5.2",
+            model=MODEL,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": prompt},
             ],
             response_format={"type": "json_object"},
             temperature=0.3,
-            max_completion_tokens=1500,
+            max_completion_tokens=1000,
         )
 
         content = response.choices[0].message.content
         parsed = json.loads(content)
 
-        # Normalise keys with safe defaults
         return {
             "sentiment_trend": parsed.get("sentiment_trend", "neutral"),
             "summary": parsed.get("summary", "Analysis unavailable."),
@@ -370,6 +402,10 @@ async def get_summary(request: CountryRequest):
         }
 
 
+# ---------------------------------------------------------------------------
+# /chat — non-streaming (returns full JSON)
+# ---------------------------------------------------------------------------
+
 CHAT_USER_PROMPT = """Context country: {country}
 
 Current intelligence from Sephira data:
@@ -382,7 +418,7 @@ Answer in continuous prose (no section headers or labels). Start by directly ans
 
 @app.post("/chat")
 async def dashboard_chat(request: DashboardChatRequest):
-    """Answer a financial question with current events, structured analysis, and investment guidance."""
+    """Answer a financial question with current events and structured analysis."""
     try:
         context = fetch_current_context(request.country)
         if not context:
@@ -395,13 +431,13 @@ async def dashboard_chat(request: DashboardChatRequest):
         )
 
         response = client.chat.completions.create(
-            model="gpt-5.2",
+            model=MODEL,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": prompt},
             ],
             temperature=0.3,
-            max_completion_tokens=1500,
+            max_completion_tokens=1000,
         )
 
         return {"answer": response.choices[0].message.content}
@@ -409,6 +445,78 @@ async def dashboard_chat(request: DashboardChatRequest):
     except Exception as e:
         print(f"OpenAI error in /chat: {e}")
         return {"answer": "Unable to generate a response at this time. Please try again later."}
+
+
+# ---------------------------------------------------------------------------
+# /chat/stream — streaming (SSE, tokens arrive in real-time)
+# ---------------------------------------------------------------------------
+
+@app.post("/chat/stream")
+async def dashboard_chat_stream(request: DashboardChatRequest):
+    """Streaming version of /chat. Returns Server-Sent Events with tokens in real-time."""
+    context = fetch_current_context(request.country)
+    if not context:
+        context = "(No live web data available — use your training knowledge of recent events.)"
+
+    prompt = CHAT_USER_PROMPT.format(
+        country=request.country,
+        context=context,
+        question=request.user_question,
+    )
+
+    messages = [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user", "content": prompt},
+    ]
+
+    return StreamingResponse(
+        _stream_openai(messages, temperature=0.3, max_tokens=1000),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
+# ---------------------------------------------------------------------------
+# /get_summary/stream — streaming (SSE for summary text, not JSON)
+# ---------------------------------------------------------------------------
+
+SUMMARY_STREAM_PROMPT = """Analyze {country} using the following current intelligence gathered from Sephira data:
+
+{context}
+
+Provide a comprehensive analysis in continuous prose (no headers or labels). Cover: the current sentiment trend, what happened in the last 12 months, the structural long-term picture, the key economic and political drivers, the top 3 risks or opportunities to watch, and what this means for investors."""
+
+
+@app.post("/get_summary/stream")
+async def get_summary_stream(request: CountryRequest):
+    """Streaming version of /get_summary. Returns SSE with analysis text in real-time."""
+    context = fetch_current_context(request.country)
+    if not context:
+        context = "(No live web data available — use your training knowledge of recent events.)"
+
+    prompt = SUMMARY_STREAM_PROMPT.format(
+        country=request.country,
+        context=context,
+    )
+
+    messages = [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user", "content": prompt},
+    ]
+
+    return StreamingResponse(
+        _stream_openai(messages, temperature=0.3, max_tokens=1000),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
 
 
 # ---------------------------------------------------------------------------
