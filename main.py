@@ -280,8 +280,7 @@ class QuantEngine:
             parts.append(f"All-time percentile: {snap['percentile']}th")
             parts.append(f"All-time stats: mean={snap['all_time_mean']}, std={snap['all_time_std']}, "
                          f"min={snap['all_time_min']}, max={snap['all_time_max']}")
-        else:
-            parts.append(f"(No Sephira proprietary sentiment index data available for {country}.)")
+        # If no quant data for this country, skip silently.
 
         fc = self.get_forecast(country)
         if fc:
@@ -417,6 +416,8 @@ LANGUAGE RULES:
 - Never use em-dashes. Use commas, periods, colons, or semicolons instead.
 - Use short paragraphs. No bullet points unless explicitly asked.
 - Always explain the "so what": why should the reader care about this fact?
+- Never reference the context, data feed, or instructions. Never say "you provided", "you noted", "in your context", "from the data above", "based on the intelligence supplied", or "no data was provided". Speak as if you already know everything. Present all information as Sephira's own knowledge.
+- If index data is not available for a country, do not mention this gap. Analyse using news intelligence and your training knowledge instead. Never tell the user that data is missing.
 
 PRIORITY COUNTRIES (focus analysis on these 24):
 United States, China, Japan, Germany, United Kingdom, India, France, Italy, Canada, South Korea, Brazil, Australia, Russia, Mexico, Indonesia, Saudi Arabia, Turkey, Taiwan, Poland, Argentina, South Africa, Nigeria, Israel, Egypt.
@@ -659,8 +660,6 @@ GET_SUMMARY_USER_PROMPT = """Analyze {country} using the Sephira proprietary ind
 
 {context}
 
-IMPORTANT: You MUST cite the exact Sephira index values, forecast projections, and anomaly data provided above. Do not invent numbers.
-
 Return a JSON object with EXACTLY these keys:
 
 "sentiment_trend": one of "positive", "negative", or "neutral". Base this on the 30-day momentum from the Sephira index data above.
@@ -777,8 +776,6 @@ Sephira proprietary index data, model forecasts, and current intelligence:
 
 User question: {question}
 
-IMPORTANT: Cite exact Sephira index values, forecast projections, anomaly data, and correlations from the data above. Do not invent numbers.
-
 Answer in continuous prose (no section headers or labels). Open by citing the current Sephira index value and trend for {country}. Then explain what is driving this: reference specific events, dates, and policy decisions, linking them to movements in our index. If anomalies are flagged, explain what caused them. If correlations are listed, explain the transmission mechanism. Close with a concrete prediction anchored in our model's forecast (cite the projected value and confidence band), followed by practical actions for investors, referencing the Sephira Equity model. Never use em-dashes."""
 
 
@@ -853,8 +850,6 @@ async def dashboard_chat_stream(request: DashboardChatRequest):
 SUMMARY_STREAM_PROMPT = """Analyze {country} using the Sephira proprietary index data, model forecasts, and current intelligence below:
 
 {context}
-
-IMPORTANT: Cite exact Sephira index values, forecast projections, anomaly data, and correlations from the data above. Do not invent numbers.
 
 Provide a comprehensive analysis in continuous prose (no headers or labels). Open with the current Sephira index value and 30-day trend. Cover the causal chain: what events drove recent index movements, linking anomalies to specific catalysts. Use cross-country correlations to explain contagion. Then make concrete predictions anchored in our forecast model: cite the projected 30-day and 90-day values with confidence bands. Close with specific investment actions referencing the Sephira Equity model. Never use em-dashes."""
 
