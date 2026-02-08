@@ -86,36 +86,37 @@ PRIORITY_COUNTRIES = [
 ]
 
 # ---------------------------------------------------------------------------
-# System Prompt — unified across all endpoints
+# System Prompt - unified across all endpoints
 # ---------------------------------------------------------------------------
 SYSTEM_PROMPT = """You are Sephira Orion, the intelligence engine of the Sephira Institute. You analyse sentiment index data across 24 priority economies from 1970 to the present, combined with live news intelligence and social-signal data.
 
-RESPONSE STRUCTURE — follow this flow as continuous prose. NEVER print section headers, labels, or numbers:
+RESPONSE STRUCTURE: follow this flow as continuous prose. NEVER print section headers, labels, or numbers:
 
-First, answer the user's question immediately in plain language (1-2 sentences). State the Sephira sentiment trend clearly, e.g. "The latest Sephira sentiment trend for Taiwan is negative." If the user asks to detect anomalies, forecast, or compare — lead with the result.
+First, answer the user's question immediately in plain language (1-2 sentences). State the Sephira sentiment trend clearly, e.g. "The latest Sephira sentiment trend for Taiwan is negative." If the user asks to detect anomalies, forecast, or compare, lead with the result.
 
-Then, explain the CAUSAL CHAIN — HOW and WHY (2-3 paragraphs). This is the core of every response. For each event you mention:
+Then, explain the CAUSAL CHAIN, the HOW and WHY (2-3 paragraphs). This is the core of every response. For each event you mention:
 - Name the event specifically: who said or did what, on what date. Quote leaders, central bankers, or officials where possible (e.g. "President Xi declared 'reunification is unstoppable' in his January 1 address", "The Fed held rates at 5.25% on December 13", "Erdogan posted on X that Turkey would 'never bow to economic pressure'").
 - Explain the TRANSMISSION MECHANISM: how does this event change volatility, capital flows, sentiment or risk premiums in the region? What is the chain from political event → economic channel → sentiment shift? For example: a tariff increase → higher import costs → margin compression for manufacturers → weaker earnings guidance → institutional sell-off → sentiment deterioration.
 - Explain WHO is affected and HOW: how does this improve or disadvantage an investor with exposure to the region? What positions gain, what positions lose?
 - Use YouTube/social trending data when provided: if escapism content is surging or crisis keywords dominate trending, explain what this reveals about population psychology and how it maps to consumer confidence or risk appetite.
 
-Finally, synthesise into a forward-looking assessment (1-2 paragraphs). Identify the top risks and opportunities with specific triggers to watch. Suggest practical actions: sectors to rotate into or out of, currencies to hedge, commodity exposures to adjust. Tie suggestions to the Sephira Equity model where relevant (e.g. "Our equity model flags elevated downside risk in Taiwan-exposed semiconductor names — consider reducing TSMC-linked positions").
+Finally, PREDICT (1-2 paragraphs). This is not optional. Every response must contain at least one concrete prediction with a timeframe (e.g. "within 30 days", "by Q2 2026", "over the next 3 months"). State what you expect to happen, not what "could" happen. Commit to a direction: up or down, strengthen or weaken, escalate or de-escalate. Attach conditions: "If the BoC cuts on March 18, expect CAD to weaken 2-3% against USD within two weeks. If they hold, expect a relief rally in rate-sensitive equities." Quantify where possible: percentage moves, basis-point shifts, index-level targets. Never hide behind "it remains to be seen", "investors should monitor", "could potentially", or "watch this space". Say what you think will happen and why. Then give specific actions: sectors to rotate into or out of, currencies to hedge, positions to trim or add. Reference the Sephira Equity model (e.g. "The Sephira Equity model flags elevated downside risk in Taiwan semiconductor names; reduce TSMC-linked positions by Q2 2026").
 
 CITING REAL EVENTS:
-- Always attribute analysis to "Sephira data" or "our analysis" — never mention web search, APIs, or tool names.
+- Always attribute analysis to "Sephira data" or "our analysis". Never mention web search, APIs, or tool names.
 - BUT reference the actual real-world event by name, date, person, and quote. The reader should be able to verify the event independently.
 - Examples of good citations:
   "Sephira data captured the immediate impact of China's 'Justice Mission 2025' drills around Taiwan on December 29-30, which simulated a full blockade..."
   "Following the Bank of Japan's surprise yield-curve adjustment on January 23, our analysis shows..."
-  "When Milei posted 'there is no money' on X on December 10, Argentine sovereign spreads widened 45bp within hours — Sephira data registered this as..."
+  "When Milei posted 'there is no money' on X on December 10, Argentine sovereign spreads widened 45bp within hours. Sephira data registered this as..."
 
 LANGUAGE RULES:
 - Write for a smart non-specialist. No jargon, no filler, no vague hand-waving.
 - Every sentence must tell the reader something concrete. If a sentence could be removed without losing information, remove it.
 - Never say "it is important to note", "it should be noted", "various factors", "a complex interplay", or similar empty phrases.
+- Never use em-dashes. Use commas, periods, colons, or semicolons instead.
 - Use short paragraphs. No bullet points unless explicitly asked.
-- Always explain the "so what" — why should the reader care about this fact?
+- Always explain the "so what": why should the reader care about this fact?
 
 PRIORITY COUNTRIES (focus analysis on these 24):
 United States, China, Japan, Germany, United Kingdom, India, France, Italy, Canada, South Korea, Brazil, Australia, Russia, Mexico, Indonesia, Saudi Arabia, Turkey, Taiwan, Poland, Argentina, South Africa, Nigeria, Israel, Egypt.
@@ -124,7 +125,7 @@ INVESTMENT GUIDANCE:
 - When relevant, reference the Sephira Equity model for actionable investment signals.
 - Explain the reasoning: WHY does this sentiment shift affect this asset class? Through what channel?
 - For conflict-risk scenarios, trace the impact chain: conflict → supply disruption → commodity price → currency → regional equity index.
-- Keep suggestions practical, specific, and tied to the causal analysis — never generic.
+- Keep suggestions practical, specific, and tied to the causal analysis. Never generic.
 
 SOCIAL INTELLIGENCE:
 - When YouTube trending data is provided, interpret it as a population psychology signal.
@@ -149,7 +150,7 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
-# CORS — allow all origins so both frontends can connect
+# CORS - allow all origins so both frontends can connect
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -349,7 +350,7 @@ def _stream_openai(messages, max_tokens=1500):
 
 
 # ---------------------------------------------------------------------------
-# /get_summary — non-streaming (returns structured JSON)
+# /get_summary - non-streaming (returns structured JSON)
 # ---------------------------------------------------------------------------
 
 GET_SUMMARY_USER_PROMPT = """Analyze {country} using the following current intelligence gathered from Sephira data:
@@ -358,25 +359,25 @@ GET_SUMMARY_USER_PROMPT = """Analyze {country} using the following current intel
 
 Return a JSON object with EXACTLY these keys:
 
-"sentiment_trend": one of "positive", "negative", or "neutral" — the current Sephira sentiment direction.
+"sentiment_trend": one of "positive", "negative", or "neutral". The current Sephira sentiment direction.
 
-"summary": A concise 2-3 sentence plain-language summary of what is happening in {country} right now. No jargon. Lead with the most important fact.
+"summary": Lead with a prediction, not a recap. In 2-3 sentences, state what Sephira expects to happen in {country} over the next 1-3 months, why, and what investors should do about it. No jargon.
 
-"short_term": Analysis of the last 12 months — what specific events moved sentiment? Reference dates, numbers, policy decisions, elections, conflicts. Connect each event to its sentiment impact.
+"short_term": What will happen in {country} over the next 1-3 months? Make specific predictions: expected policy decisions, likely market moves, sentiment direction. Commit to a call with a timeframe and magnitude (e.g. "Expect the central bank to cut by 25bp in March, pushing the currency down 2-3% against USD"). Reference the events that support your prediction.
 
-"long_term": The structural picture over 5-10 years — where is {country} heading and why? Reference demographic, institutional, or geopolitical shifts.
+"long_term": Predict the 1-3 year trajectory. Commit to a direction on growth, political stability, and structural shifts. State what you expect, not what "could" happen. Include at least one quantified prediction (e.g. "GDP growth will slow from 3.2% to under 2% by 2027 as demographic headwinds intensify").
 
-"drivers": The top 3-5 concrete economic and political drivers currently affecting {country}, each as a short sentence.
+"drivers": The top 3-5 forces that will drive the next move in {country}, each as a short sentence with a predicted direction (e.g. "Tariff escalation will compress manufacturing margins by 5-8% through Q2 2026").
 
-"risk_radar": An array of the top 3 risk/opportunity factors to watch, each with:
+"risk_radar": An array of the top 3 risk/opportunity factors, each with:
   - "category": one of "Geopolitical", "Economic", "Political", "Social", "Trade", "Monetary", "Fiscal", "Security"
-  - "label": short name of the risk/opportunity (e.g. "US tariff escalation")
+  - "label": short name (e.g. "US tariff escalation")
   - "direction": "risk" or "opportunity"
   - "severity": integer 1-10 (10 = most severe/impactful)
 
-"equity_signal": 1-2 sentences on what this means for investors — sectors, asset classes, or exposures to watch. Reference the Sephira Equity model if relevant.
+"equity_signal": A specific investment call: overweight or underweight which sectors or asset classes, with a timeframe and trigger. Reference the Sephira Equity model (e.g. "Sephira Equity model flags underweight trade-exposed industrials through Q2 2026; rotate into domestically oriented utilities and telecoms").
 
-Return ONLY valid JSON, no markdown fences, no commentary outside the JSON."""
+Never use em-dashes. Return ONLY valid JSON, no markdown fences, no commentary outside the JSON."""
 
 
 def _extract_json(text: str) -> dict:
@@ -414,7 +415,7 @@ async def get_summary(request: CountryRequest):
     try:
         context = fetch_current_context(request.country)
         if not context:
-            context = "(No live web data available — use your training knowledge of recent events.)"
+            context = "(No live web data available; use your training knowledge of recent events.)"
 
         prompt = GET_SUMMARY_USER_PROMPT.format(
             country=request.country,
@@ -462,7 +463,7 @@ async def get_summary(request: CountryRequest):
 
 
 # ---------------------------------------------------------------------------
-# /chat — non-streaming (returns full JSON)
+# /chat - non-streaming (returns full JSON)
 # ---------------------------------------------------------------------------
 
 CHAT_USER_PROMPT = """Context country: {country}
@@ -472,7 +473,7 @@ Current intelligence from Sephira data:
 
 User question: {question}
 
-Answer in continuous prose (no section headers or labels). Start by directly answering the question in 1-2 plain sentences. Then explain what is driving this — reference specific events, dates, data points, and policy decisions. Close by synthesising into a forward-looking view with practical implications for investors or risk managers, referencing the Sephira Equity model where relevant."""
+Answer in continuous prose (no section headers or labels). Start by directly answering the question in 1-2 plain sentences. Then explain what is driving this: reference specific events, dates, data points, and policy decisions. Close with a concrete prediction (commit to a direction, timeframe, and magnitude) and practical actions for investors or risk managers, referencing the Sephira Equity model where relevant. Never use em-dashes."""
 
 
 @app.post("/chat")
@@ -481,7 +482,7 @@ async def dashboard_chat(request: DashboardChatRequest):
     try:
         context = fetch_current_context(request.country)
         if not context:
-            context = "(No live web data available — use your training knowledge of recent events.)"
+            context = "(No live web data available; use your training knowledge of recent events.)"
 
         prompt = CHAT_USER_PROMPT.format(
             country=request.country,
@@ -507,7 +508,7 @@ async def dashboard_chat(request: DashboardChatRequest):
 
 
 # ---------------------------------------------------------------------------
-# /chat/stream — streaming (SSE, tokens arrive in real-time)
+# /chat/stream - streaming (SSE, tokens arrive in real-time)
 # ---------------------------------------------------------------------------
 
 @app.post("/chat/stream")
@@ -515,7 +516,7 @@ async def dashboard_chat_stream(request: DashboardChatRequest):
     """Streaming version of /chat. Returns Server-Sent Events with tokens in real-time."""
     context = fetch_current_context(request.country)
     if not context:
-        context = "(No live web data available — use your training knowledge of recent events.)"
+        context = "(No live web data available; use your training knowledge of recent events.)"
 
     prompt = CHAT_USER_PROMPT.format(
         country=request.country,
@@ -540,14 +541,14 @@ async def dashboard_chat_stream(request: DashboardChatRequest):
 
 
 # ---------------------------------------------------------------------------
-# /get_summary/stream — streaming (SSE for summary text, not JSON)
+# /get_summary/stream - streaming (SSE for summary text, not JSON)
 # ---------------------------------------------------------------------------
 
 SUMMARY_STREAM_PROMPT = """Analyze {country} using the following current intelligence gathered from Sephira data:
 
 {context}
 
-Provide a comprehensive analysis in continuous prose (no headers or labels). Cover: the current sentiment trend, what happened in the last 12 months, the structural long-term picture, the key economic and political drivers, the top 3 risks or opportunities to watch, and what this means for investors."""
+Provide a comprehensive analysis in continuous prose (no headers or labels). Cover: the current sentiment trend, what happened in the last 12 months, the structural long-term picture, and the key economic and political drivers. Then make concrete predictions: what will happen over the next 1-3 months, and the next 1-3 years? Commit to a direction, give timeframes, and quantify where possible. Close with specific investment actions. Never use em-dashes."""
 
 
 @app.post("/get_summary/stream")
@@ -555,7 +556,7 @@ async def get_summary_stream(request: CountryRequest):
     """Streaming version of /get_summary. Returns SSE with analysis text in real-time."""
     context = fetch_current_context(request.country)
     if not context:
-        context = "(No live web data available — use your training knowledge of recent events.)"
+        context = "(No live web data available; use your training knowledge of recent events.)"
 
     prompt = SUMMARY_STREAM_PROMPT.format(
         country=request.country,
