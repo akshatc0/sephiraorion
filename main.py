@@ -378,6 +378,35 @@ Return a JSON object with EXACTLY these keys:
 Return ONLY valid JSON, no markdown fences, no commentary outside the JSON."""
 
 
+def _extract_json(text: str) -> dict:
+    """Try to parse JSON from model output, handling markdown fences and extra text."""
+    if not text:
+        return {}
+    # Try direct parse first
+    text = text.strip()
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        pass
+    # Try stripping markdown code fences
+    import re
+    match = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.DOTALL)
+    if match:
+        try:
+            return json.loads(match.group(1))
+        except json.JSONDecodeError:
+            pass
+    # Try finding first { to last }
+    start = text.find("{")
+    end = text.rfind("}")
+    if start != -1 and end != -1 and end > start:
+        try:
+            return json.loads(text[start:end + 1])
+        except json.JSONDecodeError:
+            pass
+    return {}
+
+
 @app.post("/get_summary")
 async def get_summary(request: CountryRequest):
     """Comprehensive country analysis with current events, risk radar, and equity signals."""
@@ -397,13 +426,14 @@ async def get_summary(request: CountryRequest):
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": prompt},
             ],
-            response_format={"type": "json_object"},
-
             max_completion_tokens=1000,
         )
 
-        content = response.choices[0].message.content
-        parsed = json.loads(content)
+        content = response.choices[0].message.content or ""
+        parsed = _extract_json(content)
+
+        if not parsed:
+            print(f"/get_summary: Could not parse JSON from response: {content[:200]}")
 
         return {
             "sentiment_trend": parsed.get("sentiment_trend", "neutral"),
